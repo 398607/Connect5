@@ -71,6 +71,18 @@
     <ClCompile Include="GeneratedFiles\Release\moc_Map.cpp">
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_Launcher.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_Launcher.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_NetBattleUserInteraction.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_NetBattleUserInteraction.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="connect5.qrc">
@@ -91,12 +103,21 @@
     <CustomBuild Include="Map.h">
       <Filter>Header Files</Filter>
     </CustomBuild>
+    <CustomBuild Include="Launcher.h">
+      <Filter>Header Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="NetBattleUserInteraction.h">
+      <Filter>Header Files</Filter>
+    </CustomBuild>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Connect5.rc" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MapPaintEngine.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="NetBattleMsg.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

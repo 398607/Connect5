@@ -24,10 +24,8 @@ public slots:
     void claimMove(int x, int y) {
         // qDebug() << "!";
         emit move(currentPlayer, x, y);
-        currentPlayer = CellMatrix::nextPlayer(currentPlayer);
     }
 private:
-    Player currentPlayer;
     MouseObserver* mouseObs;
 };
 

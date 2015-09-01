@@ -1,11 +1,11 @@
 
 #include <QtWidgets/QApplication>
-#include "Game.h"
+#include "Launcher.h"
 
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
-    Game w;
+    Launcher w;
     w.show();
     return a.exec();
 }

@@ -103,8 +103,8 @@ public:
                 nowy += dy[d];
             }
 
-            // if (num >= 5)
-            //     return true;
+            if (num >= 5)
+                return true;
 
             nowx = lastPos.x(), nowy = lastPos.y();
 
@@ -120,7 +120,7 @@ public:
                 nowy += dy[rd];
             }
 
-            qDebug() << num;
+            // qDebug() << num;
 
             if (num >= 5)
                 return true;
