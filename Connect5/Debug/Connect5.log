@@ -1,0 +1,39 @@
+﻿生成启动时间为 2015/9/1 16:58:40。
+     1>项目“D:\S\playing\Connect5\Connect5\Connect5.vcxproj”在节点 2 上(Rebuild 个目标)。
+     1>CustomBuild:
+         Rcc'ing connect5.qrc...
+     1>RCC : warning : No resources in 'D:\S\playing\Connect5\Connect5\connect5.qrc'.
+         
+         Moc'ing game.h...
+         Moc'ing LocalMultiUserInteraction.h...
+         Moc'ing Map.h...
+         Moc'ing UserInteraction.h...
+         Moc'ing MouseObserver.h...
+       ClCompile:
+         D:\U\drivers\vs2012\VC\bin\CL.exe /c /ID:\U\drivers\Qt\5.5\msvc2012\include /I.\GeneratedFiles /I. /I.\GeneratedFiles\Debug /ID:\U\drivers\Qt\5.5\msvc2012\include\QtCore /ID:\U\drivers\Qt\5.5\msvc2012\include\QtGui /ID:\U\drivers\Qt\5.5\msvc2012\include\QtTest /ID:\U\drivers\Qt\5.5\msvc2012\include\QtWidgets /ID:\U\drivers\Qt\5.5\msvc2012\include\QtMultimedia /Zi /nologo /W1 /WX- /Od /Oy- /D UNICODE /D WIN32 /D WIN64 /D QT_DLL /D QT_CORE_LIB /D QT_GUI_LIB /D QT_TESTLIB_LIB /D QT_WIDGETS_LIB /D QT_MULTIMEDIA_LIB /Gm- /EHsc /MDd /GS /fp:precise /Zc:wchar_t- /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc110.pdb" /Gd /TP /analyze- /errorReport:prompt GeneratedFiles\Debug\moc_game.cpp GeneratedFiles\Debug\moc_LocalMultiUserInteraction.cpp GeneratedFiles\Debug\moc_Map.cpp GeneratedFiles\Debug\moc_MouseObserver.cpp GeneratedFiles\Debug\moc_UserInteraction.cpp main.cpp
+         moc_game.cpp
+         moc_LocalMultiUserInteraction.cpp
+         moc_Map.cpp
+         moc_MouseObserver.cpp
+         moc_UserInteraction.cpp
+         main.cpp
+         正在生成代码...
+         D:\U\drivers\vs2012\VC\bin\CL.exe /c /ID:\U\drivers\Qt\5.5\msvc2012\include /I.\GeneratedFiles /I. /I.\GeneratedFiles\Debug /ID:\U\drivers\Qt\5.5\msvc2012\include\QtCore /ID:\U\drivers\Qt\5.5\msvc2012\include\QtGui /ID:\U\drivers\Qt\5.5\msvc2012\include\QtTest /ID:\U\drivers\Qt\5.5\msvc2012\include\QtWidgets /ID:\U\drivers\Qt\5.5\msvc2012\include\QtMultimedia /Zi /nologo /W1 /WX- /Od /Oy- /D UNICODE /D WIN32 /D WIN64 /D QT_DLL /D QT_CORE_LIB /D QT_GUI_LIB /D QT_TESTLIB_LIB /D QT_WIDGETS_LIB /D QT_MULTIMEDIA_LIB /Gm- /EHsc /MDd /GS /fp:precise /Zc:wchar_t- /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc110.pdb" /Gd /TP /analyze- /errorReport:prompt GeneratedFiles\qrc_connect5.cpp
+         qrc_connect5.cpp
+       ResourceCompile:
+         C:\Program Files (x86)\Windows Kits\8.0\bin\x86\rc.exe /l"0x0409" /nologo /fo"Debug\Connect5.res" Connect5.rc 
+       Link:
+         D:\U\drivers\vs2012\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"D:\S\playing\Connect5\Win32\Debug\\Connect5.exe" /NOLOGO /LIBPATH:D:\U\drivers\Qt\5.5\msvc2012\lib qtmaind.lib Qt5Cored.lib Qt5Guid.lib Qt5Testd.lib Qt5Widgetsd.lib Qt5Multimediad.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"D:\S\playing\Connect5\Win32\Debug\Connect5.pdb" /SUBSYSTEM:WINDOWS /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"D:\S\playing\Connect5\Win32\Debug\Connect5.lib" /MACHINE:X86 /SAFESEH Debug\Connect5.res
+         Debug\moc_game.obj
+         Debug\moc_LocalMultiUserInteraction.obj
+         Debug\moc_Map.obj
+         Debug\moc_MouseObserver.obj
+         Debug\moc_UserInteraction.obj
+         Debug\qrc_connect5.obj
+         Debug\main.obj
+         Connect5.vcxproj -> D:\S\playing\Connect5\Win32\Debug\Connect5.exe
+     1>已完成生成项目“D:\S\playing\Connect5\Connect5\Connect5.vcxproj”(Rebuild 个目标)的操作。
+
+生成成功。
+
+已用时间 00:00:06.29
