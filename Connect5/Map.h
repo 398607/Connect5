@@ -2,7 +2,11 @@
 #define MAP_H
 #include <vector>
 
-
+#include <QFile>
+#include <QFileDialog>
+#include <QTextStream>
+#include <QDate>
+#include <QTime>
 #include <QObject>
 #include <QDebug>
 
@@ -68,6 +72,9 @@ public:
     const Cell& cellAt(const Pos& p) const {
         return matrix[p.x()][p.y()];
     }
+    Cell& cellAt(const Pos& p) {
+        return matrix[p.x()][p.y()];
+    }
     bool move(const Player& player, const Pos& p)  {
         if (cellAt(p) == Cell::Empty) {
             cellAt(p) = Cell(player);
@@ -128,13 +135,55 @@ public:
         }
         return false;
     }
+public slots:
+    void save() {
+        QString saveName = "save_" + QDate::currentDate().toString("yyyy_MM_dd__") + QTime::currentTime().toString().replace(QRegExp(":"), "_") + ".bak";
+        qDebug() << saveName;
+
+        QFile file(saveName);
+        if(!file.open(QIODevice::WriteOnly | QIODevice::Append)) {
+            qDebug() << "save failed";
+            return;
+        }
+        QTextStream out(&file);
+        
+        for (int i = 0; i < len(); i++)
+            for (int j = 0; j < len(); j++)
+                if (cellAt(Pos(i, j)) != Cell::Empty) {
+                    if (cellAt(Pos(i, j)) == Cell::White)
+                        out << "W\n";
+                    else
+                        out << "B\n";
+                    out << i << "\n" << j << "\n";
+                }
+    }
+    bool load(QWidget* parent = 0) {
+        QString fileName = QFileDialog::getOpenFileName(parent, "Load Bak File", QDir::currentPath(), "Map Save files (*.bak)");
+        QFile file(fileName);
+        if (!file.open(QIODevice::ReadOnly))
+            return false;
+        QTextStream in(&file);
+
+        char c;
+        int i, j;
+
+        while (!in.atEnd()) {
+            in >> c;
+            if (c == '\n')
+                continue;
+            in >> i >> j;
+            Player p = Player::White;
+            if (c == 'B')
+                p = Player::Black;
+            move(p, Pos(i, j));
+        }
+        return false;
+    }
 signals:
     void endGame(const Player& p);
 protected:
     // non-const Cell find
-    Cell& cellAt(const Pos& p) {
-        return matrix[p.x()][p.y()];
-    }
+    
     map2D& operator()(void) {
         return matrix;
     }

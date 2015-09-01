@@ -34,27 +34,25 @@ Try to start building web battle module - done
 
 
 
-Begin battle when both clicked Start btn
+Begin battle when both clicked Start btn -done
 
-count down 20 seconds for each move
+**count down 20 seconds for each move**
 
-update total time cost for each player
+**update total time cost for each player**
 
-Current player display
+Current player display - done
 
 Learn multi-threading in Qt - realy? considering
 
-Advanced GUI: about web game process
-
-Learn Signal Mapping
+**Learn Signal Mapping**
 
 Advanced UserInteraction: about web game process - done
 
-Add Undo btn and request
+**Add Undo btn and request**
 
-Add Quit Connection btn and request
+**Add Quit Connection btn and request**
 
-Add save / load map btn
+Add save / load map btn - done
 
 
 

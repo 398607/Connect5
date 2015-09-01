@@ -12,13 +12,19 @@ class NetBattleMsg {
 public:
     enum class MsgType {
         NONE = 0,
-        MOVE
+        MOVE,
+        BEGIN_GAME
     };
     // get a MOVE msg
     NetBattleMsg(const Player& p, int x, int y) {
         type = MsgType::MOVE;
         player = p;
         pos = Pos(x, y);
+    }
+    NetBattleMsg(const MsgType& t) {
+        if (t == MsgType::BEGIN_GAME) {
+            type = t;
+        }
     }
     NetBattleMsg(const std::string& str) {
         if (str[0] == 'M') { // MOVE
@@ -34,6 +40,9 @@ public:
             qDebug() << x << " " << y;
             
             pos = Pos(x, y);
+        }
+        else if (str[0] == 'S') {
+            type = MsgType::BEGIN_GAME;
         }
     }
     std::string toQString() {
@@ -55,7 +64,10 @@ public:
                 str += '0';
             str += QString::number(pos.y()).toStdString();
         }
-        qDebug() << QString(str.c_str());
+        else if (type == MsgType::BEGIN_GAME) {
+            str += 'S';
+        }
+        // qDebug() << QString(str.c_str());
         return str;
     }
 public:
