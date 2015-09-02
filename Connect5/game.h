@@ -1,11 +1,12 @@
-#ifndef GAMEE_H
-#define GAMEE_H
+#ifndef GAME_H
+#define GAME_H
 
 #include <QtWidgets/QDialog>
 #include <QPaintEvent>
 #include <QSize>
 #include <QMessageBox>
 #include <QIcon>
+#include <QHostInfo>
 #include <QTextEdit>
 #include <QRect>
 #include <QDebug>
@@ -30,7 +31,10 @@ class Set_s: public QDialog {
     Q_OBJECT
 
 public:
-    Set_s() {
+    Set_s(bool _host = true) {
+
+        host = _host;
+
         this->setFixedSize(800, 400);
         QPushButton* ok = new QPushButton(this);
         ok->setGeometry(120, 350, 200, 50);
@@ -42,39 +46,59 @@ public:
         cancel->setText("cancel");
         connect(cancel, &QPushButton::clicked, this, &Set_s::close);
 
+        QString localHostName = QHostInfo::localHostName();
+        QHostInfo info = QHostInfo::fromName(localHostName);
+        foreach(QHostAddress address, info.addresses()) {
+            if(address.protocol() == QAbstractSocket::IPv4Protocol) {
+                ip = address.toString();
+                break;
+            }
+        }
+
+
         text = new QLineEdit(this);
         text->setGeometry(50, 10, 700, 50);
-
-        // keyboard
-        QSignalMapper* m = new QSignalMapper(this);
-        
-        for (int i = 0; i <= 9; i++) {
-            QPushButton *b = new QPushButton(QString::number(i), this);
-            if (i <= 4)
-                b->setGeometry((i + 1) * 120, 80, 100, 80);
-            else 
-                b->setGeometry((i - 4) * 120, 170, 100, 80);
-            b->setText(QString::number(i));
-            b->show();
-            connect(b, SIGNAL(clicked()), 
-                    m, SLOT(map()));
-            m->setMapping(b, i);
-
+        if (host) {
+            text->setReadOnly(true);
+            text->setText(ip);
         }
-        connect(m, SIGNAL(mapped(int)), this, SLOT(keyPressed(int)));
 
-        // .
-        QPushButton* b = new QPushButton(this);
-        b->setGeometry(120, 260, 100, 80);
-        b->setText(".");
-        b->show();
-        connect(b, &QPushButton::clicked, this, &Set_s::key_);
+        if (!host) {
+
+            // keyboard
+            QSignalMapper* m = new QSignalMapper(this);
+        
+            for (int i = 0; i <= 9; i++) {
+                QPushButton *b = new QPushButton(QString::number(i), this);
+                if (i <= 4)
+                    b->setGeometry((i + 1) * 120, 80, 100, 80);
+                else 
+                    b->setGeometry((i - 4) * 120, 170, 100, 80);
+                b->setText(QString::number(i));
+                b->show();
+                connect(b, SIGNAL(clicked()), 
+                        m, SLOT(map()));
+                m->setMapping(b, i);
+
+            }
+            connect(m, SIGNAL(mapped(int)), this, SLOT(keyPressed(int)));
+
+            // .
+            QPushButton* b = new QPushButton(this);
+            b->setGeometry(120, 260, 100, 80);
+            b->setText(".");
+            b->show();
+            connect(b, &QPushButton::clicked, this, &Set_s::key_);
+        }
 
     }
 
 protected slots:
     void confirm() {
-        emit giveAdd(text->text());
+        if (host)
+            emit(giveAdd(ip));
+        else
+            emit giveAdd(text->text());
         this->close();
     }
     void keyPressed(int i) {
@@ -89,6 +113,8 @@ signals:
 
 private:
     QLineEdit* text;
+    bool host;
+    QString ip;
 };
 
 class Game : public QDialog
@@ -185,6 +211,15 @@ protected slots:
         QMessageBox* m = new QMessageBox(QMessageBox::Icon::Warning, "Game Over!", "Player " + winnerName + " has won this game.");
         m->show();
     }
+    void undo() {
+        if (gameMode == GameMode::LOCALMULTI) {
+            map->undo();
+            repaint();
+        }
+        else if (gameMode == GameMode::NETBATTLE) {
+            sendUndoRequest();
+        }
+    }
 
     // file
     void saveMap() {
@@ -243,24 +278,10 @@ protected slots:
 
         sendBeginRequest();
     }
-    void sendBeginRequest() {
-        QByteArray* arr = new QByteArray();
-        arr->clear();
-        arr->append(NetBattleMsg(NetBattleMsg::MsgType::BEGIN_GAME).toQString().c_str());
-        useSocket->write(arr->data());
-        delete arr;
-    }
-    void sendMsgType(const NetBattleMsg::MsgType& y) {
-        QByteArray* arr = new QByteArray();
-        arr->clear();
-        arr->append(NetBattleMsg(y).toQString().c_str());
-        useSocket->write(arr->data());
-        delete arr;
-    }
 
     // client
     void askForAddC() {
-        Set_s* set = new Set_s();
+        Set_s* set = new Set_s(false);
         connect(set, &Set_s::giveAdd, this, &Game::initClient);
         set->show();
     }
@@ -349,6 +370,7 @@ protected slots:
                 sendMsgType(NetBattleMsg::MsgType::LOAD_PERMISSION);
                 useSocket->close();
                 map->clear();
+                repaint();
                 if (isHost)
                     listenSocket->close();
             }
@@ -362,10 +384,34 @@ protected slots:
                 listenSocket->close();
             addDisplay->setText("");
             map->clear();
+            repaint();
             waitForMe = false;
             // quit
         }
         else if (msg.type == NetBattleMsg::MsgType::LOAD_DECLINE) {
+            // nothing
+        }
+        else if (msg.type == NetBattleMsg::MsgType::UNDO_REQUEST) {
+            QMessageBox::StandardButton choose = QMessageBox::question(NULL, 
+                                                 "Undo Request", "Opponent intends to undo. Allow?", 
+                                                 QMessageBox::Yes | QMessageBox::No, 
+                                                 QMessageBox::No);
+            if (choose == QMessageBox::Yes) {
+                
+                sendMsgType(NetBattleMsg::MsgType::UNDO_PERMISSION);
+                map->undo();
+                repaint();
+            }
+            else {
+                sendMsgType(NetBattleMsg::MsgType::UNDO_DECLINE);
+            }
+        }
+        else if (msg.type == NetBattleMsg::MsgType::UNDO_PERMISSION) {
+            map->undo();
+            repaint();
+            // undo
+        }
+        else if (msg.type == NetBattleMsg::MsgType::UNDO_DECLINE) {
             // nothing
         }
     }
@@ -376,12 +422,21 @@ protected slots:
         getMsgStr(str);
 
     }
-    void sendQuitRequest() {
+    void sendMsgType(const NetBattleMsg::MsgType& y) {
         QByteArray* arr = new QByteArray();
         arr->clear();
-        arr->append(NetBattleMsg(NetBattleMsg::MsgType::LOAD_REQUEST).toQString().c_str());
+        arr->append(NetBattleMsg(y).toQString().c_str());
         useSocket->write(arr->data());
         delete arr;
+    }
+    void sendBeginRequest() {
+        sendMsgType(NetBattleMsg::MsgType::BEGIN_GAME);
+    }
+    void sendQuitRequest() {
+        sendMsgType(NetBattleMsg::MsgType::LOAD_REQUEST);
+    }
+    void sendUndoRequest() {
+        sendMsgType(NetBattleMsg::MsgType::UNDO_REQUEST);
     }
 
 protected:
@@ -397,7 +452,7 @@ protected:
         currDisplay->setText("Black`s turn");
 
         QPushButton* load = new QPushButton(this);
-        load->setGeometry(1720, 990, 200, 50);
+        load->setGeometry(1300, 160, 200, 50);
         load->setText("Load game");
         connect(load, &QPushButton::clicked, this, &Game::loadMap);
     }
@@ -405,13 +460,13 @@ protected:
         userInteraction = new NetBattleUserInteraction(this, 1000 / map->len(), mapRect);
         QPushButton* btn_inits = new QPushButton(this);
         btn_inits->setGeometry(1080, 40, 200, 50);
-        btn_inits->setText("build Host");
+        btn_inits->setText("Build Host");
         connect(btn_inits, &QPushButton::clicked, this, &Game::askForAddS);
 
 
         QPushButton* btn_initc = new QPushButton(this);
         btn_initc->setGeometry(1300, 40, 200, 50);
-        btn_initc->setText("connect Host");
+        btn_initc->setText("Connect Host");
         connect(btn_initc, &QPushButton::clicked, this, &Game::askForAddC);
 
         begin_btn = new QPushButton(this);
@@ -421,8 +476,8 @@ protected:
         connect(begin_btn, &QPushButton::clicked, this, &Game::beginBtnClicked);
 
         QPushButton* btn_quit = new QPushButton(this);
-        btn_quit->setGeometry(1300, 100, 200, 50);
-        btn_quit->setText("quit Game");
+        btn_quit->setGeometry(1300, 220, 200, 50);
+        btn_quit->setText("Quit Game");
         connect(btn_quit, &QPushButton::clicked, this, &Game::sendQuitRequest);
 
         addDisplay = new QTextEdit(this);
@@ -434,16 +489,19 @@ protected:
     }
     void init() { // done first
         currDisplay = new QTextEdit(this);
-        currDisplay->setGeometry(1080, 990, 400, 50);
+        currDisplay->setGeometry(1600, 100, 400, 50);
         currDisplay->setReadOnly(true);
         currDisplay->setText("Game Isn`t On");
 
         QPushButton* save = new QPushButton(this);
-        save->setGeometry(1500, 990, 200, 50);
+        save->setGeometry(1080, 160, 200, 50);
         save->setText("Save game");
         connect(save, &QPushButton::clicked, this, &Game::saveMap);
 
-        
+        QPushButton* undo = new QPushButton(this);
+        undo->setGeometry(1080, 220, 200, 50);
+        undo->setText("Undo");
+        connect(undo, &QPushButton::clicked, this, &Game::undo);
 
     }
 

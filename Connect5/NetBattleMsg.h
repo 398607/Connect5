@@ -14,9 +14,14 @@ public:
         NONE = 0,
         MOVE,
         BEGIN_GAME,
+
         LOAD_REQUEST,
         LOAD_PERMISSION,
         LOAD_DECLINE,
+
+        UNDO_REQUEST, 
+        UNDO_PERMISSION,
+        UNDO_DECLINE
     };
     // get a MOVE msg
     NetBattleMsg(const Player& p, int x, int y) {
@@ -24,19 +29,9 @@ public:
         player = p;
         pos = Pos(x, y);
     }
+    // a msg only contains a type name
     NetBattleMsg(const MsgType& t) {
-        if (t == MsgType::BEGIN_GAME) {
-            type = t;
-        }
-        else if (t == MsgType::LOAD_REQUEST) {
-            type = t;
-        }
-        else if (t == MsgType::LOAD_PERMISSION) {
-            type = t;
-        }
-        else if (t == MsgType::LOAD_DECLINE) {
-            type = t;
-        }
+        type = t;
     }
     NetBattleMsg(const std::string& str) {
         if (str[0] == 'M') { // MOVE
@@ -56,6 +51,7 @@ public:
         else if (str[0] == 'S') {
             type = MsgType::BEGIN_GAME;
         }
+        // ugly
         else if (str[0] == 'L') {
             if (str[1] == 'R')
                 type = MsgType::LOAD_REQUEST;
@@ -63,6 +59,14 @@ public:
                 type = MsgType::LOAD_PERMISSION;
             else if (str[1] == 'D')
                 type = MsgType::LOAD_DECLINE;
+        }
+        else if (str[0] == 'U') {
+            if (str[1] == 'R')
+                type = MsgType::UNDO_REQUEST;
+            else if (str[1] == 'P')
+                type = MsgType::UNDO_PERMISSION;
+            else if (str[1] == 'D')
+                type = MsgType::UNDO_DECLINE;
         }
     }
     std::string toQString() {
@@ -92,6 +96,18 @@ public:
         }
         else if (type == MsgType::LOAD_PERMISSION) {
             str += "LP";
+        }
+        else if (type == MsgType::LOAD_DECLINE) {
+            str+= "LD";
+        }
+        else if (type == MsgType::UNDO_REQUEST) {
+            str += "UR";
+        }
+        else if (type == MsgType::UNDO_PERMISSION) {
+            str += "UP";
+        }
+        else if (type == MsgType::UNDO_DECLINE) {
+            str+= "UD";
         }
         // qDebug() << QString(str.c_str());
         return str;

@@ -1,6 +1,7 @@
 #ifndef MAP_H
 #define MAP_H
 #include <vector>
+#include <stack>
 
 #include <QFile>
 #include <QFileDialog>
@@ -79,6 +80,7 @@ public:
         if (cellAt(p) == Cell::Empty) {
             cellAt(p) = Cell(player);
             lastPos = p;
+            moveStack.push(p);
             if (checkWin())
                 emit endGame(Player(cellAt(lastPos)));
             return true;
@@ -141,6 +143,15 @@ public:
                 cellAt(Pos(i, j)) = Cell::Empty;
     }
 public slots:
+    void undo() {
+        if (moveStack.size() < 2) {
+            return;
+        }
+        cellAt(moveStack.top()) = Cell::Empty;
+        moveStack.pop();
+        cellAt(moveStack.top()) = Cell::Empty;
+        moveStack.pop();
+    }
     void save() {
         QString saveName = "save_" + QDate::currentDate().toString("yyyy_MM_dd__") + QTime::currentTime().toString().replace(QRegExp(":"), "_") + ".bak";
         qDebug() << saveName;
@@ -217,6 +228,7 @@ private:
     // ban
     CellMatrix(const CellMatrix& c);
     CellMatrix& operator=(const CellMatrix& c);
+    std::stack<Pos> moveStack;
 };
 
 #endif
