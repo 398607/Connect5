@@ -9,7 +9,9 @@
 #include <QTextEdit>
 #include <QRect>
 #include <QDebug>
+#include <QLineEdit>
 #include <QPushButton>
+#include <QSignalMapper>
 
 #include <QtNetwork/QTcpServer>
 #include <QtNetwork/QTcpSocket>
@@ -29,27 +31,64 @@ class Set_s: public QDialog {
 
 public:
     Set_s() {
-        this->setFixedSize(400, 300);
+        this->setFixedSize(800, 400);
         QPushButton* ok = new QPushButton(this);
-        ok->setGeometry(100, 240, 200, 50);
+        ok->setGeometry(120, 350, 200, 50);
         ok->setText("confirm");
         connect(ok, &QPushButton::clicked, this, &Set_s::confirm);
 
-        text = new QTextEdit(this);
-        text->setGeometry(50, 10, 300, 50);
+        QPushButton* cancel = new QPushButton(this);
+        cancel->setGeometry(500, 350, 200, 50);
+        cancel->setText("cancel");
+        connect(cancel, &QPushButton::clicked, this, &Set_s::close);
+
+        text = new QLineEdit(this);
+        text->setGeometry(50, 10, 700, 50);
+
+        // keyboard
+        QSignalMapper* m = new QSignalMapper(this);
+        
+        for (int i = 0; i <= 9; i++) {
+            QPushButton *b = new QPushButton(QString::number(i), this);
+            if (i <= 4)
+                b->setGeometry((i + 1) * 120, 80, 100, 80);
+            else 
+                b->setGeometry((i - 4) * 120, 170, 100, 80);
+            b->setText(QString::number(i));
+            b->show();
+            connect(b, SIGNAL(clicked()), 
+                    m, SLOT(map()));
+            m->setMapping(b, i);
+
+        }
+        connect(m, SIGNAL(mapped(int)), this, SLOT(keyPressed(int)));
+
+        // .
+        QPushButton* b = new QPushButton(this);
+        b->setGeometry(120, 260, 100, 80);
+        b->setText(".");
+        b->show();
+        connect(b, &QPushButton::clicked, this, &Set_s::key_);
+
     }
 
 protected slots:
     void confirm() {
-        emit giveAdd(text->toPlainText());
+        emit giveAdd(text->text());
         this->close();
+    }
+    void keyPressed(int i) {
+        text->insert(QString::number(i));
+    }
+    void key_() {
+        text->insert(".");
     }
 
 signals:
     void giveAdd(const QString& str);
 
 private:
-    QTextEdit* text;
+    QLineEdit* text;
 };
 
 class Game : public QDialog

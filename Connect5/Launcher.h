@@ -16,18 +16,18 @@ public:
         this->setFixedSize(400, 800);
 
         btn_LM = new QPushButton(this);
-        btn_LM->setGeometry(80, 50, 240, 60);
+        btn_LM->setGeometry(80, 20, 240, 100);
         btn_LM->setText("Local Multi");
         connect(btn_LM, &QPushButton::clicked, this, &Launcher::newLMGame);
 
         btn_NB = new QPushButton(this);
-        btn_NB->setGeometry(80, 330, 240, 60);
+        btn_NB->setGeometry(80, 200, 240, 100);
         btn_NB->setText("Net Battle");
         connect(btn_NB, &QPushButton::clicked, this, &Launcher::newNBGame);
 
 
         btn_exit = new QPushButton(this);
-        btn_exit->setGeometry(80, 610, 240, 60);
+        btn_exit->setGeometry(80, 380, 240, 100);
         btn_exit->setText("Quit App");
         connect(btn_exit, &QPushButton::clicked, qApp, &QApplication::quit);
     }
