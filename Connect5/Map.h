@@ -135,6 +135,11 @@ public:
         }
         return false;
     }
+    void clear() {
+        for (int i = 0; i < len(); i++)
+            for (int j = 0; j < len(); j++)
+                cellAt(Pos(i, j)) = Cell::Empty;
+    }
 public slots:
     void save() {
         QString saveName = "save_" + QDate::currentDate().toString("yyyy_MM_dd__") + QTime::currentTime().toString().replace(QRegExp(":"), "_") + ".bak";
@@ -149,13 +154,18 @@ public slots:
         
         for (int i = 0; i < len(); i++)
             for (int j = 0; j < len(); j++)
-                if (cellAt(Pos(i, j)) != Cell::Empty) {
+                if (cellAt(Pos(i, j)) != Cell::Empty && !(Pos(i, j) == last())) {
                     if (cellAt(Pos(i, j)) == Cell::White)
                         out << "W\n";
                     else
                         out << "B\n";
                     out << i << "\n" << j << "\n";
                 }
+        if (cellAt(last()) == Cell::White)
+            out << "W\n";
+        else
+            out << "B\n";
+        out << last().x() << "\n" << last().y() << "\n";
     }
     bool load(QWidget* parent = 0) {
         QString fileName = QFileDialog::getOpenFileName(parent, "Load Bak File", QDir::currentPath(), "Map Save files (*.bak)");
@@ -177,6 +187,10 @@ public slots:
                 p = Player::Black;
             move(p, Pos(i, j));
         }
+
+        // the last one is saved as lastpos
+        lastPos = Pos(i, j);
+
         return false;
     }
 signals:

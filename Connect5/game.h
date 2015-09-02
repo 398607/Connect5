@@ -152,7 +152,18 @@ protected slots:
         map->save();
     }
     void loadMap() {
-        map->load(this);
+        if (gameMode == GameMode::LOCALMULTI) {
+            map->clear();
+            map->load(this);
+
+            // find the correct "next" players
+            userInteraction->setPlayer(CellMatrix::nextPlayer(Player(map->cellAt(map->last()))));
+
+            QString pal = "White";
+            if (map->cellAt(map->last()) == Cell::White)
+                pal = "Black";
+            currDisplay->setText(pal + "`s turn");
+        }
     }
 
     // network
@@ -197,6 +208,13 @@ protected slots:
         QByteArray* arr = new QByteArray();
         arr->clear();
         arr->append(NetBattleMsg(NetBattleMsg::MsgType::BEGIN_GAME).toQString().c_str());
+        useSocket->write(arr->data());
+        delete arr;
+    }
+    void sendMsgType(const NetBattleMsg::MsgType& y) {
+        QByteArray* arr = new QByteArray();
+        arr->clear();
+        arr->append(NetBattleMsg(y).toQString().c_str());
         useSocket->write(arr->data());
         delete arr;
     }
@@ -248,24 +266,32 @@ protected slots:
             currDisplay->setText("Black`s turn");
         }
     }
-    void getMsg() {
-        
-        QString str;
-        str = useSocket->readAll();
-        NetBattleMsg msg(str.toStdString());
-
+    void reviveWaitForMe() {
+        userInteraction->setPlayer(CellMatrix::nextPlayer(Player(map->cellAt(map->last()))));
+        if (myPlayer == userInteraction->currentPlayer)
+            waitForMe = true;
+    }
+    void getMsgStr(const QString& str) {
         qDebug() << str;
+        NetBattleMsg msg(str.toStdString());
 
         if (msg.type == NetBattleMsg::MsgType::MOVE) {
             if (waitForMe)
                 return; // for safety?
             move(msg.player, msg.pos.x(), msg.pos.y());
+
             waitForMe = true;
+
         }
         else if (msg.type == NetBattleMsg::MsgType::BEGIN_GAME && isHost == false) { // client recieved begin request
+            QMessageBox* box = new QMessageBox(QMessageBox::Icon::Information,
+                                           "Connected!",
+                                           "Game will immediately begin when both clicked 'Battle!' button.");
+            box->show();
             begin_btn->setEnabled(true);
         }
         else if (msg.type == NetBattleMsg::MsgType::BEGIN_GAME && isHost == true) { // client recieved begin request
+
             beginRequestNum++;
             if (beginRequestNum == 2) {
                 QMessageBox* box = new QMessageBox(QMessageBox::Icon::Information, "Battle Begin!", "Host uses black, and move first.");
@@ -273,6 +299,43 @@ protected slots:
                 beginBattle();
             }
         }
+        else if (msg.type == NetBattleMsg::MsgType::LOAD_REQUEST) {
+            waitForMe = false;
+            QMessageBox::StandardButton choose = QMessageBox::question(NULL, 
+                                                 "Load Game Request", "Opponent intends to load a saved game. Allow?", 
+                                                 QMessageBox::Yes | QMessageBox::No, 
+                                                 QMessageBox::No);
+            if (choose == QMessageBox::Yes) {
+                sendMsgType(NetBattleMsg::MsgType::LOAD_PERMISSION);
+            }
+            else {
+                sendMsgType(NetBattleMsg::MsgType::LOAD_DECLINE);
+            }
+        }
+        else if (msg.type == NetBattleMsg::MsgType::LOAD_PERMISSION) {
+
+        }
+        else if (msg.type == NetBattleMsg::MsgType::LOAD_DECLINE) {
+            
+            sendMsgType(NetBattleMsg::MsgType::LOAD_FIN);
+        }
+        else if (msg.type == NetBattleMsg::MsgType::LOAD_FIN) {
+
+        }
+    }
+    void getMsg() {
+        
+        QString str;
+        str = useSocket->readAll();
+        getMsgStr(str);
+
+    }
+    void sendLoadRequest() {
+        QByteArray* arr = new QByteArray();
+        arr->clear();
+        arr->append(NetBattleMsg(NetBattleMsg::MsgType::LOAD_REQUEST).toQString().c_str());
+        useSocket->write(arr->data());
+        delete arr;
     }
 
 protected:
@@ -286,6 +349,11 @@ protected:
         waitForMe = true;
 
         currDisplay->setText("Black`s turn");
+
+        QPushButton* load = new QPushButton(this);
+        load->setGeometry(1720, 990, 200, 50);
+        load->setText("Load game");
+        connect(load, &QPushButton::clicked, this, &Game::loadMap);
     }
     void initNB() {
         userInteraction = new NetBattleUserInteraction(this, 1000 / map->len(), mapRect);
@@ -311,6 +379,7 @@ protected:
         addDisplay->setReadOnly(true);
 
         waitForMe = false;
+        loading = false;
     }
     void init() { // done first
         currDisplay = new QTextEdit(this);
@@ -323,10 +392,7 @@ protected:
         save->setText("Save game");
         connect(save, &QPushButton::clicked, this, &Game::saveMap);
 
-        QPushButton* load = new QPushButton(this);
-        load->setGeometry(1720, 990, 200, 50);
-        load->setText("Load game");
-        connect(load, &QPushButton::clicked, this, &Game::loadMap);
+        
 
     }
 
@@ -357,6 +423,8 @@ private:
     Player myPlayer;
     bool waitForMe;
     int beginRequestNum;
+
+    bool loading;
 };
 
 #endif // GAME_H

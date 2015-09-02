@@ -13,7 +13,11 @@ public:
     enum class MsgType {
         NONE = 0,
         MOVE,
-        BEGIN_GAME
+        BEGIN_GAME,
+        LOAD_REQUEST,
+        LOAD_PERMISSION,
+        LOAD_DECLINE,
+        LOAD_FIN
     };
     // get a MOVE msg
     NetBattleMsg(const Player& p, int x, int y) {
@@ -23,6 +27,18 @@ public:
     }
     NetBattleMsg(const MsgType& t) {
         if (t == MsgType::BEGIN_GAME) {
+            type = t;
+        }
+        else if (t == MsgType::LOAD_REQUEST) {
+            type = t;
+        }
+        else if (t == MsgType::LOAD_PERMISSION) {
+            type = t;
+        }
+        else if (t == MsgType::LOAD_DECLINE) {
+            type = t;
+        }
+        else if (t == MsgType::LOAD_FIN) {
             type = t;
         }
     }
@@ -43,6 +59,16 @@ public:
         }
         else if (str[0] == 'S') {
             type = MsgType::BEGIN_GAME;
+        }
+        else if (str[0] == 'L') {
+            if (str[1] == 'R')
+                type = MsgType::LOAD_REQUEST;
+            else if (str[1] == 'P')
+                type = MsgType::LOAD_PERMISSION;
+            else if (str[1] == 'D')
+                type = MsgType::LOAD_DECLINE;
+            else if (str[1] == 'F')
+                type = MsgType::LOAD_FIN;
         }
     }
     std::string toQString() {
@@ -66,6 +92,15 @@ public:
         }
         else if (type == MsgType::BEGIN_GAME) {
             str += 'S';
+        }
+        else if (type == MsgType::LOAD_REQUEST) {
+            str += "LR";
+        }
+        else if (type == MsgType::LOAD_PERMISSION) {
+            str += "LP";
+        }
+        else if (type == MsgType::LOAD_FIN) {
+            str += "LF";
         }
         // qDebug() << QString(str.c_str());
         return str;
