@@ -44,7 +44,7 @@ Current player display - done
 
 Learn multi-threading in Qt - realy? considering
 
-**Learn Signal Mapping**
+Learn Signal Mapping - done
 
 Advanced UserInteraction: about web game process - done
 

@@ -339,27 +339,34 @@ protected slots:
             }
         }
         else if (msg.type == NetBattleMsg::MsgType::LOAD_REQUEST) {
-            waitForMe = false;
             QMessageBox::StandardButton choose = QMessageBox::question(NULL, 
-                                                 "Load Game Request", "Opponent intends to load a saved game. Allow?", 
+                                                 "Quit Game Request", "Opponent intends to quit this game. Allow?", 
                                                  QMessageBox::Yes | QMessageBox::No, 
                                                  QMessageBox::No);
             if (choose == QMessageBox::Yes) {
+                addDisplay->setText("");
+                waitForMe = false;
                 sendMsgType(NetBattleMsg::MsgType::LOAD_PERMISSION);
+                useSocket->close();
+                map->clear();
+                if (isHost)
+                    listenSocket->close();
             }
             else {
                 sendMsgType(NetBattleMsg::MsgType::LOAD_DECLINE);
             }
         }
         else if (msg.type == NetBattleMsg::MsgType::LOAD_PERMISSION) {
-
+            useSocket->close();
+            if (isHost)
+                listenSocket->close();
+            addDisplay->setText("");
+            map->clear();
+            waitForMe = false;
+            // quit
         }
         else if (msg.type == NetBattleMsg::MsgType::LOAD_DECLINE) {
-            
-            sendMsgType(NetBattleMsg::MsgType::LOAD_FIN);
-        }
-        else if (msg.type == NetBattleMsg::MsgType::LOAD_FIN) {
-
+            // nothing
         }
     }
     void getMsg() {
@@ -369,7 +376,7 @@ protected slots:
         getMsgStr(str);
 
     }
-    void sendLoadRequest() {
+    void sendQuitRequest() {
         QByteArray* arr = new QByteArray();
         arr->clear();
         arr->append(NetBattleMsg(NetBattleMsg::MsgType::LOAD_REQUEST).toQString().c_str());
@@ -412,6 +419,11 @@ protected:
         begin_btn->setText("Battle!");
         begin_btn->setEnabled(false);
         connect(begin_btn, &QPushButton::clicked, this, &Game::beginBtnClicked);
+
+        QPushButton* btn_quit = new QPushButton(this);
+        btn_quit->setGeometry(1300, 100, 200, 50);
+        btn_quit->setText("quit Game");
+        connect(btn_quit, &QPushButton::clicked, this, &Game::sendQuitRequest);
 
         addDisplay = new QTextEdit(this);
         addDisplay->setGeometry(1600, 40, 400, 50);
