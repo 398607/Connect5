@@ -77,6 +77,8 @@ public:
         return matrix[p.x()][p.y()];
     }
     bool move(const Player& player, const Pos& p)  {
+        if (player == Player::None) // empty move
+            return true;
         if (cellAt(p) == Cell::Empty) {
             cellAt(p) = Cell(player);
             lastPos = p;

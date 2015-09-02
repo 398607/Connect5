@@ -25,6 +25,7 @@
 #include "NetBattleUserInteraction.h"
 #include "MouseObserver.h"
 #include "NetBattleMsg.h"
+#include "Countdown.h"
 
 class Set_s: public QDialog {
 
@@ -48,13 +49,16 @@ public:
 
         QString localHostName = QHostInfo::localHostName();
         QHostInfo info = QHostInfo::fromName(localHostName);
+        bool flag = false;
         foreach(QHostAddress address, info.addresses()) {
             if(address.protocol() == QAbstractSocket::IPv4Protocol) {
                 ip = address.toString();
+                flag = true;
                 break;
             }
         }
-
+        if (!flag)
+            ip = "127.0.0.1";
 
         text = new QLineEdit(this);
         text->setGeometry(50, 10, 700, 50);
@@ -183,10 +187,10 @@ protected slots:
                 myPlayer = CellMatrix::nextPlayer(myPlayer);
             }
             else if (gameMode == GameMode::NETBATTLE && p == myPlayer) {
-                waitForMe = false;
+                setWaitForMe(false);
             }
             else if (gameMode == GameMode::NETBATTLE && p != myPlayer) {
-                waitForMe = true;
+                setWaitForMe(true);
             }
         }
         else { // fail
@@ -195,7 +199,7 @@ protected slots:
 
         repaint();
 
-        if (gameMode == GameMode::NETBATTLE && p == myPlayer) {
+        if (gameMode == GameMode::NETBATTLE && p == myPlayer) { // me
             QByteArray* arr = new QByteArray();
             arr->clear();
             arr->append(NetBattleMsg(p, x, y).toQString().c_str());
@@ -241,6 +245,16 @@ protected slots:
     }
 
     // network
+
+    void setWaitForMe(bool value) {
+        waitForMe = value;
+        if (value) {
+            countDown->start();
+        }
+        else {
+            countDown->pause();
+        }
+    }
 
     // host
     void askForAddS() {
@@ -318,18 +332,18 @@ protected slots:
         // wait for both to confirm
 
         if (isHost) {
-            waitForMe = true;
+            setWaitForMe(true);
             currDisplay->setText("White`s turn");
         }
         else {
-            waitForMe = false;
+            setWaitForMe(false);
             currDisplay->setText("Black`s turn");
         }
     }
     void reviveWaitForMe() {
         userInteraction->setPlayer(CellMatrix::nextPlayer(Player(map->cellAt(map->last()))));
         if (myPlayer == userInteraction->currentPlayer)
-            waitForMe = true;
+            setWaitForMe(true);
     }
     void getMsgStr(const QString& str) {
         qDebug() << str;
@@ -340,7 +354,7 @@ protected slots:
                 return; // for safety?
             move(msg.player, msg.pos.x(), msg.pos.y());
 
-            waitForMe = true;
+            setWaitForMe(true);
 
         }
         else if (msg.type == NetBattleMsg::MsgType::BEGIN_GAME && isHost == false) { // client recieved begin request
@@ -366,7 +380,7 @@ protected slots:
                                                  QMessageBox::No);
             if (choose == QMessageBox::Yes) {
                 addDisplay->setText("");
-                waitForMe = false;
+                setWaitForMe(false);
                 sendMsgType(NetBattleMsg::MsgType::LOAD_PERMISSION);
                 useSocket->close();
                 map->clear();
@@ -385,7 +399,7 @@ protected slots:
             addDisplay->setText("");
             map->clear();
             repaint();
-            waitForMe = false;
+            setWaitForMe(false);
             // quit
         }
         else if (msg.type == NetBattleMsg::MsgType::LOAD_DECLINE) {
@@ -447,7 +461,7 @@ protected:
         userInteraction = new LocalMultiUserInteraction(this, 1000 / map->len(), mapRect);
         myPlayer = Player::Black;
             
-        waitForMe = true;
+        setWaitForMe(true);
 
         currDisplay->setText("Black`s turn");
 
@@ -484,8 +498,8 @@ protected:
         addDisplay->setGeometry(1600, 40, 400, 50);
         addDisplay->setReadOnly(true);
 
-        waitForMe = false;
-        loading = false;
+        setWaitForMe(false);
+        countDown = new Countdown(20);
     }
     void init() { // done first
         currDisplay = new QTextEdit(this);
@@ -526,14 +540,15 @@ private:
 
     QTextEdit* addDisplay;
     QPushButton* begin_btn;
+    Countdown* countDown;
 
     QString add;
+
     bool isHost;
     Player myPlayer;
+
     bool waitForMe;
     int beginRequestNum;
-
-    bool loading;
 };
 
 #endif // GAME_H
