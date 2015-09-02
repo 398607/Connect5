@@ -48,9 +48,9 @@ Learn Signal Mapping - done
 
 Advanced UserInteraction: about web game process - done
 
-**Add Undo btn and request**
+Add Undo btn and request - done
 
-**Add Quit Connection btn and request**
+Add Quit Connection btn and request - done
 
 Add save / load map btn - done
 
