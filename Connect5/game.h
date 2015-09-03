@@ -2,6 +2,8 @@
 #define GAME_H
 
 #include <QtWidgets/QDialog>
+#include <QLCDNumber>
+#include <QFrame>
 #include <QPaintEvent>
 #include <QSize>
 #include <QMessageBox>
@@ -248,12 +250,23 @@ protected slots:
 
     void setWaitForMe(bool value) {
         waitForMe = value;
-        if (value) {
-            countDown->start();
+        if (gameMode == GameMode::NETBATTLE) {
+            if (value) {
+                countDown->start();
+            }
+            else {
+                countDown->stop();
+            }
         }
-        else {
-            countDown->pause();
-        }
+    }
+    void sendNoneMove() {
+        QByteArray* arr = new QByteArray();
+        arr->clear();
+        arr->append(NetBattleMsg(Player::None, 0, 0).toQString().c_str());
+
+        useSocket->write(arr->data());
+        delete arr;
+        setWaitForMe(false);
     }
 
     // host
@@ -498,8 +511,15 @@ protected:
         addDisplay->setGeometry(1600, 40, 400, 50);
         addDisplay->setReadOnly(true);
 
-        setWaitForMe(false);
         countDown = new Countdown(20);
+        connect(countDown, &Countdown::timeOut, this, &Game::sendNoneMove);
+
+        QLCDNumber* num = new QLCDNumber(2, this);
+        num->setGeometry(1600, 160, 400, 50);
+        connect(countDown, SIGNAL(timeChanged(int)), num, SLOT(display(int)));
+
+        setWaitForMe(false);
+
     }
     void init() { // done first
         currDisplay = new QTextEdit(this);

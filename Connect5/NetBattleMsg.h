@@ -40,6 +40,8 @@ public:
             player = Player::Black;
             if (str[1] == 'W')
                 player = Player::White;
+            if (str[1] == 'N')
+                player = Player::None;
 
             int x, y;
             x = atoi(str.substr(2, 2).c_str());
@@ -78,6 +80,8 @@ public:
                 str += 'B';
             else if (player == Player::White)
                 str += 'W';
+            else if (player == Player::None)
+                str += 'N';
 
             // ugly
             if (pos.x() < 10)

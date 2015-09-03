@@ -15,6 +15,7 @@ public:
         QTimer* timer = new QTimer(this);
         connect(timer, &QTimer::timeout, this, &Countdown::oneSec);
         timer->start(1000);
+        emit timeChanged(v);
     }
 signals:
     void timeChanged(int time);
@@ -26,6 +27,7 @@ public slots:
             emit timeChanged(v);
             if (v == 0) {
                 v = maxV;
+                emit timeChanged(maxV);
                 emit timeOut();
             }
         }
@@ -33,11 +35,17 @@ public slots:
     void pause() {
         on = false;
     }
+    void stop() {
+        on = false;
+        v = maxV;
+        emit timeChanged(v);
+    }
     void resume() {
         on = true;
     }
     void start() {
         v = maxV;
+        emit timeChanged(maxV);
         on = true;
     }
 private:
