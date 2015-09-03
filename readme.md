@@ -36,7 +36,7 @@ Try to start building web battle module - done
 
 Begin battle when both clicked Start btn -done
 
-**count down 20 seconds for each move**
+count down 20 seconds for each move - done
 
 **update total time cost for each player**
 
