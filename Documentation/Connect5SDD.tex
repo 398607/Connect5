@@ -1,0 +1,108 @@
+
+\documentclass[cs4size,hyperref]{ctexart}
+
+\CTEXsetup[number={\Roman{section}}]{section}
+
+\begin{document}
+
+\title{Connect5 - An Ancient Chinese Board Game\\
+		with network battle implementation, based on Qt}
+\author{苏克\\ {2014011402,~~计45,~~nagizero@foxmail.com}}
+
+\maketitle
+\newpage
+\tableofcontents
+\newpage
+
+\section{Introduction}
+
+本次的大作业要求实现网络五子棋程序，作为网络和多线程编程的练习作业。笔者本想学习QML从而实现更美观的界面，却因事务繁忙失败。之后一定会有相应的更新。
+
+下面具体地说明程序的编写思路和模块化构造。
+
+\section{System Overview}
+	简单地说，游戏除了游戏主窗口类Game和用以打开不同模式的游戏窗口的类Launcher，大多数都是游戏逻辑和交互的模块化。下面按照具体的情况进行说明：
+	
+	\section{Basic Data Structure}
+	
+		\subsubsection{Map.h}
+			
+			枚举类Cell给出一个格子上可能的所有状态：白子、黑子、空。枚举类Player为相应的玩家：白，黑，无。两个枚举类都继承于int，所以可以通过强制类型转换进行棋子到玩家之间的正确转换。
+			
+			Pos类存储一个二维向量（相当于一个坐标），给出x()和y()两个接口。
+			
+			CellMatrix类作为“棋盘”的数据结构存在。重要的外部接口函数如下：
+			\begin{itemize}
+			
+			\item bool move(const Player\& p, const Pos\& p) 
+			
+			用于一次下子。返回下子成功或失败的结果。
+			
+			实际程序中，Game类的move接口通过调用这个函数来进行双方落子的操作。
+			
+			\item bool checkWin()
+			
+			当前棋局是否已经分出胜负？如果有人胜利，返回true，否则返回false。
+			
+			五子棋的规则决定了胜利方胜利时，胜利方一定唯一，而且最后的落子一定直接导致胜利——亦即最后的落子一定属于某个“五长连块”。因此只要记录并更新棋盘上最后一处落子点的位置，在它的一周八个方向进行探索计数，得到四个方向（水平、竖直、主副对角线方向）上同色联通长列的长度，判断其是否为5以上即可。
+			
+			当然，如果想要节省空间，也可以做这样的设计：每次move()内成功落子之后，判断是否胜利。这样便不需要记录最后落子点。
+			
+			但是本程序中因为有“悔棋”的需求，记录落子顺序（或最后落子点压栈）成为了必须。便没有进行上述设计。
+			
+			\end{itemize}
+			
+			重要的外部槽函数如下：
+			
+			\begin{itemize}
+			
+			\item void undo()
+			
+			悔棋。当落子点栈元素超过两个时，从中取出两个并消除其对应位置的棋子。
+			
+			\item void save()
+			
+			存档。根据当前的日期和时间自动生成文件名，将存档文件保存在相同目录内。
+			
+			\item bool load(QWidget* parent = 0)
+			
+			读档。弹出一个文件对话框，加载用户选择的存档文件。返回是否读档成功的信息。
+			
+			\end{itemize}
+			
+			CellMatrix类的信号如下：
+			
+			\begin{itemize}
+			
+			\item void endGame(const Player& p)
+			
+			当判定游戏结束时，发射该信号并带有胜利方信息。
+			
+			Game类会监听这个信号，并作出正确的反应。
+			
+			\end{itemize}
+			
+	\subsection{Game Logic \& User Interface}
+	
+		\subsubsection{Game.h}
+			
+			Game类继承于QDialog，是游戏的主要窗口。其左边是一个棋盘，右边是根据游戏模式不同而不同的功能按键。
+			
+			由于游戏需求繁多，Game类拥有大量的功能函数。不过比较大的功能块全部解耦成了单独的模块，下面进行介绍：
+			
+			\begin{itemize}
+			
+			\item 棋盘绘制
+			
+			棋盘的绘制全权交给MapPaintEngine类负责，后者只要一个map类常量指针就可以把棋盘状态完整地绘制在窗口上。
+			
+			\item 用户交互
+			
+			\end{itemize}
+		
+
+\section{System Architecture}
+\section{Human Interface Design}
+
+
+\end{document}
