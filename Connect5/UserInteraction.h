@@ -15,7 +15,7 @@ public:
         currentPlayer = CellMatrix::nextPlayer(currentPlayer);
     }
 signals:
-    void move(const Player& player, int x, int y);
+    void move(const Player& player, int x, int y, bool flag);
 
 public:
     Player currentPlayer;

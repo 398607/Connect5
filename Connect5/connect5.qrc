@@ -1,4 +1,6 @@
 <RCC>
-    <qresource prefix="Connect5">
+    <qresource prefix="/Connect5">
+        <file>Resources/win.wav</file>
+        <file>Resources/lose.wav</file>
     </qresource>
 </RCC>

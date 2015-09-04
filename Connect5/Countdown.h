@@ -20,10 +20,12 @@ public:
 signals:
     void timeChanged(int time);
     void timeOut();
+    void oneSecSignal();
 public slots:
     void oneSec() {
         if (on) {
             v--;
+            emit oneSecSignal();
             emit timeChanged(v);
             if (v == 0) {
                 v = maxV;

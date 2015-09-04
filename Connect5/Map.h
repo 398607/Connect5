@@ -54,6 +54,7 @@ public:
         n = _n;
         for (unsigned i = 0; i < _n; i++)
             matrix.push_back(std::vector<Cell>(_n));
+        lastPos = Pos(-1, -1);
     }
 
     static Player nextPlayer(const Player& p) {
@@ -93,6 +94,8 @@ public:
         return lastPos;
     }
     bool checkWin() {
+        if (lastPos == Pos(-1, -1))
+            return false;
         int dx[] = {1,  1,  0, -1, -1, -1,  0,  1};
         int dy[] = {0,  1,  1,  1,  0, -1, -1, -1};
         for (int d = 0; d < 4; d++) {
@@ -156,11 +159,11 @@ public slots:
     }
     void save() {
         QString saveName = "save_" + QDate::currentDate().toString("yyyy_MM_dd__") + QTime::currentTime().toString().replace(QRegExp(":"), "_") + ".bak";
-        qDebug() << saveName;
+        // qDebug() << saveName;
 
         QFile file(saveName);
         if(!file.open(QIODevice::WriteOnly | QIODevice::Append)) {
-            qDebug() << "save failed";
+            // qDebug() << "save failed";
             return;
         }
         QTextStream out(&file);

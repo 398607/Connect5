@@ -14,6 +14,8 @@ public:
         NONE = 0,
         MOVE,
         BEGIN_GAME,
+        BEGIN_LOADED_GAME,
+        LOADING_END,
 
         LOAD_REQUEST,
         LOAD_PERMISSION,
@@ -24,10 +26,11 @@ public:
         UNDO_DECLINE
     };
     // get a MOVE msg
-    NetBattleMsg(const Player& p, int x, int y) {
+    NetBattleMsg(const Player& p, int x, int y, int t) {
         type = MsgType::MOVE;
         player = p;
         pos = Pos(x, y);
+        time = t;
     }
     // a msg only contains a type name
     NetBattleMsg(const MsgType& t) {
@@ -46,7 +49,8 @@ public:
             int x, y;
             x = atoi(str.substr(2, 2).c_str());
             y = atoi(str.substr(4, 2).c_str());
-            qDebug() << x << " " << y;
+            // qDebug() << x << " " << y;
+            time = atoi(str.substr(6, 100).c_str());
             
             pos = Pos(x, y);
         }
@@ -91,6 +95,8 @@ public:
             if (pos.y() < 10)
                 str += '0';
             str += QString::number(pos.y()).toStdString();
+
+            str += QString::number(time).toStdString();
         }
         else if (type == MsgType::BEGIN_GAME) {
             str += 'S';
@@ -121,6 +127,7 @@ public:
     MsgType type;
     Player player;
     Pos pos;
+    int time;
 };
 
 #endif

@@ -30,6 +30,8 @@ public:
         btn_exit->setGeometry(80, 380, 240, 100);
         btn_exit->setText("Quit App");
         connect(btn_exit, &QPushButton::clicked, qApp, &QApplication::quit);
+
+        connect(this, &QDialog::rejected, qApp, &QApplication::quit);
     }
     ~Launcher() {
         delete btn_exit;

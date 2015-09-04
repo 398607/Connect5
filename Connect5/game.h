@@ -7,9 +7,11 @@
 #include <QPaintEvent>
 #include <QSize>
 #include <QMessageBox>
+#include <QSound>
 #include <QIcon>
 #include <QHostInfo>
 #include <QTextEdit>
+#include <QLabel>
 #include <QRect>
 #include <QDebug>
 #include <QLineEdit>
@@ -164,6 +166,7 @@ public:
 
 signals:
     void confirm(bool host);
+    void timeCostTo(int t);
 
 protected slots:
     // basic
@@ -204,7 +207,7 @@ protected slots:
         if (gameMode == GameMode::NETBATTLE && p == myPlayer) { // me
             QByteArray* arr = new QByteArray();
             arr->clear();
-            arr->append(NetBattleMsg(p, x, y).toQString().c_str());
+            arr->append(NetBattleMsg(p, x, y, myTimeCost).toQString().c_str());
 
             useSocket->write(arr->data());
             delete arr;
@@ -214,8 +217,39 @@ protected slots:
         QString winnerName = "black";
         if (p == Player::White)
             winnerName = "white";
-        QMessageBox* m = new QMessageBox(QMessageBox::Icon::Warning, "Game Over!", "Player " + winnerName + " has won this game.");
-        m->show();
+
+        if (gameMode == GameMode::LOCALMULTI) {
+            QMessageBox* m = new QMessageBox(QMessageBox::Icon::Warning, "Game Over!", "Player " + winnerName + " has won this game.");
+            m->show();
+        }
+        else if (gameMode == GameMode::NETBATTLE) {
+            setWaitForMe(false);
+
+            QDialog* m = new QDialog();
+            m->setWindowTitle("Game End!");
+            m->setFixedSize(800, 600);
+
+            QLabel * label = new QLabel(m);
+            QString str("");
+            str += "Player " + winnerName + " has won this game!\n\n";
+            str += "Your time cost: " + QString::number(myTimeCost) + "\n\n";
+            str += "Opponent`s time cost: " + QString::number(oppoTimeCost) + "\n\n";
+            label->setText(str);
+
+            QString music;
+            if (p == myPlayer)
+                music = QString(":/Connect5/Resources/win.wav");
+            else 
+                music = QString(":/Connect5/Resources/lose.wav");
+
+            QSound* p = new QSound(music, m);
+            p->play();
+
+            connect(m, &QDialog::rejected, p, &QSound::stop);
+
+            m->show();
+
+        }
     }
     void undo() {
         if (gameMode == GameMode::LOCALMULTI) {
@@ -262,11 +296,20 @@ protected slots:
     void sendNoneMove() {
         QByteArray* arr = new QByteArray();
         arr->clear();
-        arr->append(NetBattleMsg(Player::None, 0, 0).toQString().c_str());
+        arr->append(NetBattleMsg(Player::None, 0, 0, myTimeCost).toQString().c_str());
 
         useSocket->write(arr->data());
         delete arr;
         setWaitForMe(false);
+    }
+    void setMyTimeCost(int t) {
+        myTimeCost = t;
+        emit timeCostTo(t);
+    }
+    void oneSec() {
+        if (map->checkWin())
+            setWaitForMe(false);
+        setMyTimeCost(myTimeCost + 1);
     }
 
     // host
@@ -340,7 +383,7 @@ protected slots:
         }
     }
     void beginBattle() {
-        qDebug() << "begin!";
+        // qDebug() << "begin!";
 
         // wait for both to confirm
 
@@ -359,13 +402,14 @@ protected slots:
             setWaitForMe(true);
     }
     void getMsgStr(const QString& str) {
-        qDebug() << str;
+        // qDebug() << str;
         NetBattleMsg msg(str.toStdString());
 
         if (msg.type == NetBattleMsg::MsgType::MOVE) {
             if (waitForMe)
                 return; // for safety?
             move(msg.player, msg.pos.x(), msg.pos.y());
+            oppoTimeCost = msg.time;
 
             setWaitForMe(true);
 
@@ -400,6 +444,7 @@ protected slots:
                 repaint();
                 if (isHost)
                     listenSocket->close();
+                setMyTimeCost(0);
             }
             else {
                 sendMsgType(NetBattleMsg::MsgType::LOAD_DECLINE);
@@ -413,6 +458,7 @@ protected slots:
             map->clear();
             repaint();
             setWaitForMe(false);
+            setMyTimeCost(0);
             // quit
         }
         else if (msg.type == NetBattleMsg::MsgType::LOAD_DECLINE) {
@@ -460,13 +506,29 @@ protected slots:
         sendMsgType(NetBattleMsg::MsgType::BEGIN_GAME);
     }
     void sendQuitRequest() {
+        if (useSocket == nullptr || !(useSocket->state() == QAbstractSocket::ConnectedState))
+            return;
         sendMsgType(NetBattleMsg::MsgType::LOAD_REQUEST);
     }
     void sendUndoRequest() {
+        if (useSocket == nullptr || !(useSocket->state() == QAbstractSocket::ConnectedState))
+            return;
         sendMsgType(NetBattleMsg::MsgType::UNDO_REQUEST);
     }
 
 protected:
+    void closeEvent(QCloseEvent* e) {
+        if (gameMode == GameMode::LOCALMULTI)
+            e->accept();
+        else if (gameMode == GameMode::NETBATTLE) {
+            if (useSocket == nullptr || !(useSocket->state() == QAbstractSocket::ConnectedState))
+                e->accept();
+            else {
+                sendQuitRequest();
+                e->ignore();
+            }
+        }
+    }
     void paintEvent(QPaintEvent* e) {
         paintEngine->paint(this, *map, mapRect);
     }
@@ -479,7 +541,7 @@ protected:
         currDisplay->setText("Black`s turn");
 
         QPushButton* load = new QPushButton(this);
-        load->setGeometry(1300, 160, 200, 50);
+        load->setGeometry(1300, 260, 200, 50);
         load->setText("Load game");
         connect(load, &QPushButton::clicked, this, &Game::loadMap);
     }
@@ -497,13 +559,13 @@ protected:
         connect(btn_initc, &QPushButton::clicked, this, &Game::askForAddC);
 
         begin_btn = new QPushButton(this);
-        begin_btn->setGeometry(1080, 100, 200, 50);
+        begin_btn->setGeometry(1080, 150, 200, 50);
         begin_btn->setText("Battle!");
         begin_btn->setEnabled(false);
         connect(begin_btn, &QPushButton::clicked, this, &Game::beginBtnClicked);
 
         QPushButton* btn_quit = new QPushButton(this);
-        btn_quit->setGeometry(1300, 220, 200, 50);
+        btn_quit->setGeometry(1300, 370, 200, 50);
         btn_quit->setText("Quit Game");
         connect(btn_quit, &QPushButton::clicked, this, &Game::sendQuitRequest);
 
@@ -513,27 +575,49 @@ protected:
 
         countDown = new Countdown(20);
         connect(countDown, &Countdown::timeOut, this, &Game::sendNoneMove);
+        connect(countDown, &Countdown::oneSecSignal, this, &Game::oneSec);
+
+        QLabel* numL = new QLabel(this);
+        numL->setGeometry(1600, 210, 400, 50);
+        numL->setText("Current Move Countdown:");
 
         QLCDNumber* num = new QLCDNumber(2, this);
-        num->setGeometry(1600, 160, 400, 50);
+        num->setGeometry(1600, 260, 400, 50);
         connect(countDown, SIGNAL(timeChanged(int)), num, SLOT(display(int)));
+
+        QLabel* numL2 = new QLabel(this);
+        numL2->setGeometry(1600, 320, 400, 50);
+        numL2->setText("Total Time Cost:");
+        
+        QLCDNumber* num2 = new QLCDNumber(4, this);
+        num2->setGeometry(1600, 370, 400, 50);
+        connect(this, SIGNAL(timeCostTo(int)), num2, SLOT(display(int)));
+
+        useSocket = nullptr;
 
         setWaitForMe(false);
 
+        setMyTimeCost(0);
+
     }
     void init() { // done first
+
+        QLabel* labelL = new QLabel(this);
+        labelL->setGeometry(1600, 100, 400, 50);
+        labelL->setText("Game Status:");
+        
         currDisplay = new QTextEdit(this);
-        currDisplay->setGeometry(1600, 100, 400, 50);
+        currDisplay->setGeometry(1600, 150, 400, 50);
         currDisplay->setReadOnly(true);
         currDisplay->setText("Game Isn`t On");
 
         QPushButton* save = new QPushButton(this);
-        save->setGeometry(1080, 160, 200, 50);
+        save->setGeometry(1080, 260, 200, 50);
         save->setText("Save game");
         connect(save, &QPushButton::clicked, this, &Game::saveMap);
 
         QPushButton* undo = new QPushButton(this);
-        undo->setGeometry(1080, 220, 200, 50);
+        undo->setGeometry(1080, 370, 200, 50);
         undo->setText("Undo");
         connect(undo, &QPushButton::clicked, this, &Game::undo);
 
@@ -566,6 +650,8 @@ private:
 
     bool isHost;
     Player myPlayer;
+    int myTimeCost;
+    int oppoTimeCost;
 
     bool waitForMe;
     int beginRequestNum;

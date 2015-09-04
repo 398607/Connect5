@@ -23,7 +23,7 @@ public:
 public slots:
     void claimMove(int x, int y) {
         // qDebug() << "!";
-        emit move(currentPlayer, x, y);
+        emit move(currentPlayer, x, y, true);
     }
 private:
     MouseObserver* mouseObs;
