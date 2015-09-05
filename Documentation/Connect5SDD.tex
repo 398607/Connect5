@@ -74,7 +74,7 @@
 			
 			\begin{itemize}
 			
-			\item void endGame(const Player& p)
+			\item void endGame(const Player\& p)
 			
 			当判定游戏结束时，发射该信号并带有胜利方信息。
 			
@@ -98,11 +98,108 @@
 			
 			\item 用户交互
 			
+			游戏本身的用户交互仅限于鼠标在棋盘上的点击。本程序中，用户交互由基类UserInteraction的指针处理，后面会有详细的说明。
+			
+			\end{itemize}
+			
+			此外，Game类本身也负责进行网络信息的处理：包括QTcpServer和QTcpSocket的搭建和连接、网络信息的接收和处理、用户可以发出的网络相关的指令等。
+			
+			下面介绍上述的两个重要的模块。
+		
+		\subsubsection{MapPaintEngine.h}
+			
+			MapPaintEngine类负责绘制棋盘。其只提供一个paint接口，传入舞台窗口指针、CellMattix类的指针、和一个QRect参数代表绘制区域，就可以进行绘制。
+			
+			依然使用QPainter进行简单的绘制。为了方便玩家查看游戏情况，最后一个落子点会比其他妻子亮一些，以示特别。
+			
+		\subsubsection{UserInteraction.h}
+		
+			UserInteraction类是所有用户交互类的基类。其带有当前玩家的信息，可以发射如下的信号：
+			
+			\begin{itemize}
+			
+			\item void move(const Player\& player, int x, int y, bool flag)
+			
+			move信号代表用户指定了一个操作，携带有该操作的基本信息：颜色、位置。flag变量用于用户拓展。
+			
+			在使用时，只要将move信号连接给Game类的move函数就可以进行正常的落子操作。
+			
+			\end{itemize}
+			
+			因为本程序中所有的用户交互都基于鼠标，因此提供了MouseObserver类，用以监听某个区域的鼠标事件并发射相应的信号。使用时，UserInteraction类（或其子类）自己按需要创建MouseObserver类对象，并将后者发射的点击信号进行妥当的处理，最后发射move信号，即满足使用要求。
+			
+			随程序携带了两个UserInteraction类的子类：
+			
+			\begin{itemize}
+			
+			\item LocalMultiUserInteraction
+			
+			此子类用于本地对战的用户交互。要点在于每次落子之后自动更换当前玩家。达到分别落子的效果。
+			
+			\item NetBattleUserInteraction
+			
+			此子类用于网络对战。与上面唯一的区别在于不会自动更换落子玩家，而一定要根据存储的用户信息进行落子。
+			
 			\end{itemize}
 		
+		\subsubsection{Countdown.h}
+		
+		Countdown类主要完成倒计时工作。其内部含有一个QTimer类对象，用来监听每一秒的时间变化；而它自己则根据自己的状态（on或者off）判断是否对“一秒”的信号进行处理。
+		
+		Countdown类发射三个信号供使用者接受并处理：
+		
+		\begin{itemize}
+		
+		\item void timeChanged(int time)
+		
+		表示当前剩余时间变化了，并附带上变化之后的值。可以直接把这个信号连接到显示元件上，来实时更新当前的剩余秒数。
+		
+		\item void timeOut()
+		
+		当时间归零时，会发送这个信号（不影响上面timeChange信号的发送）。同时，当前剩余秒数自动刷新至最大值。
+		
+		\item void oneSecSignal()
+		
+		仅当计时器处于开状态时，每过一秒，在更新数据之前会发射这个信号。使用者可以接受这个来计算总时间。
+		
+		\end{itemize}
+		
+		Countdown类主要的接口函数如下：
+		
+		\begin{itemize}
+		
+		\item void start()
+		
+		开启计时器。注意，在开启之前会将剩余秒数更新到最大值。
+		
+		\item void pause()
+		
+		暂停计时器。
+		
+		\item void stop()
+		
+		停止计时器。所谓停止和暂停的区别是：停止之前会将剩余秒数更新到最大值。
+		
+		\item void resume()
+		
+		重启计时器：只单纯地将计时器状态修改为开启，不会影响之前的剩余秒数。
+		
+		\end{itemize}
+		
 
-\section{System Architecture}
 \section{Human Interface Design}
-
-
+	打开应用程序会进入一个“Launcher”界面，用户可以选择打开一个本地对战窗口或者网络对战窗口。
+	
+	对战窗口中，左侧是棋盘，右侧会有如下的按钮或文本框：
+	
+	建立主机 连接主机 连接状态：分别代表建立一个主机，按ip连接到一个主机，和当前的连接状态。
+	
+	Battle!按键：连接成功后玩家需要各自点击Battle!按键才可以开始下棋。
+	
+	后面会显示当前落子方的颜色。
+	
+	下面一排按键是：保存游戏，读取游戏。分别代表保存当前游戏状态，或者从已有的游戏状态中读取一个。
+	
+	下面是悔棋和退出。点击时，会向对手发送相应的请求，若对手允许了请求则会进行相应的处理。
+	
 \end{document}

@@ -25,7 +25,7 @@ public slots:
         // qDebug() << "!";
         emit move(currentPlayer, x, y, false);
     }
-private:
+    private:
     MouseObserver* mouseObs;
 };
 
