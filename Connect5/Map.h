@@ -146,16 +146,23 @@ public:
         for (int i = 0; i < len(); i++)
             for (int j = 0; j < len(); j++)
                 cellAt(Pos(i, j)) = Cell::Empty;
+        moveStack = std::stack<Pos>();
     }
 public slots:
     void undo() {
         if (moveStack.size() < 2) {
             return;
         }
+
         cellAt(moveStack.top()) = Cell::Empty;
         moveStack.pop();
         cellAt(moveStack.top()) = Cell::Empty;
         moveStack.pop();
+
+        if(!moveStack.empty())
+            lastPos = moveStack.top();
+        else
+            lastPos = Pos(-1, -1);
     }
     void save() {
         QString saveName = "save_" + QDate::currentDate().toString("yyyy_MM_dd__") + QTime::currentTime().toString().replace(QRegExp(":"), "_") + ".bak";
@@ -190,6 +197,8 @@ public slots:
             return false;
         QTextStream in(&file);
 
+        clear();
+
         char c;
         int i, j;
 
@@ -205,7 +214,7 @@ public slots:
         }
 
         // the last one is saved as lastpos
-        lastPos = Pos(i, j);
+        lastPos = moveStack.top();
 
         return false;
     }

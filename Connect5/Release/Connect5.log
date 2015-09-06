@@ -1,0 +1,46 @@
+﻿生成启动时间为 2015/9/6 15:06:44。
+     1>项目“D:\S\playing\Connect5\Connect5\Connect5.vcxproj”在节点 2 上(Build 个目标)。
+     1>CustomBuild:
+         Rcc'ing connect5.qrc...
+         Moc'ing game.h...
+         Moc'ing Countdown.h...
+         Moc'ing NetBattleUserInteraction.h...
+         Moc'ing LocalMultiUserInteraction.h...
+         Moc'ing Map.h...
+         Moc'ing Launcher.h...
+         Moc'ing UserInteraction.h...
+         Moc'ing MouseObserver.h...
+       ClCompile:
+         D:\U\drivers\vs2012\VC\bin\CL.exe /c /I.\GeneratedFiles /I. /ID:\U\drivers\Qt\5.5\msvc2012\include /I.\GeneratedFiles\Release /ID:\U\drivers\Qt\5.5\msvc2012\include\QtCore /ID:\U\drivers\Qt\5.5\msvc2012\include\QtGui /ID:\U\drivers\Qt\5.5\msvc2012\include\QtTest /ID:\U\drivers\Qt\5.5\msvc2012\include\QtWidgets /ID:\U\drivers\Qt\5.5\msvc2012\include\QtMultimedia /ID:\U\drivers\Qt\5.5\msvc2012\include\QtNetwork /nologo /W1 /WX- /O2 /Oy- /D UNICODE /D WIN32 /D WIN64 /D QT_DLL /D QT_NO_DEBUG /D NDEBUG /D QT_CORE_LIB /D QT_GUI_LIB /D QT_TESTLIB_LIB /D QT_WIDGETS_LIB /D QT_MULTIMEDIA_LIB /D QT_NETWORK_LIB /Gm- /EHsc /MD /GS /fp:precise /Zc:wchar_t- /Zc:forScope /Fo"Release\\" /Fd"Release\vc110.pdb" /Gd /TP /analyze- /errorReport:prompt GeneratedFiles\qrc_connect5.cpp
+         qrc_connect5.cpp
+         D:\U\drivers\vs2012\VC\bin\CL.exe /c /I.\GeneratedFiles /I. /ID:\U\drivers\Qt\5.5\msvc2012\include /I.\GeneratedFiles\Release /ID:\U\drivers\Qt\5.5\msvc2012\include\QtCore /ID:\U\drivers\Qt\5.5\msvc2012\include\QtGui /ID:\U\drivers\Qt\5.5\msvc2012\include\QtTest /ID:\U\drivers\Qt\5.5\msvc2012\include\QtWidgets /ID:\U\drivers\Qt\5.5\msvc2012\include\QtMultimedia /ID:\U\drivers\Qt\5.5\msvc2012\include\QtNetwork /nologo /W1 /WX- /O2 /Oy- /D UNICODE /D WIN32 /D WIN64 /D QT_DLL /D QT_NO_DEBUG /D NDEBUG /D QT_CORE_LIB /D QT_GUI_LIB /D QT_TESTLIB_LIB /D QT_WIDGETS_LIB /D QT_MULTIMEDIA_LIB /D QT_NETWORK_LIB /Gm- /EHsc /MD /GS /fp:precise /Zc:wchar_t- /Zc:forScope /Fo"Release\\" /Fd"Release\vc110.pdb" /Gd /TP /analyze- /errorReport:prompt GeneratedFiles\Release\moc_Countdown.cpp GeneratedFiles\Release\moc_game.cpp GeneratedFiles\Release\moc_Launcher.cpp GeneratedFiles\Release\moc_LocalMultiUserInteraction.cpp GeneratedFiles\Release\moc_Map.cpp GeneratedFiles\Release\moc_MouseObserver.cpp GeneratedFiles\Release\moc_NetBattleUserInteraction.cpp GeneratedFiles\Release\moc_UserInteraction.cpp main.cpp
+         moc_Countdown.cpp
+         moc_game.cpp
+         moc_Launcher.cpp
+         moc_LocalMultiUserInteraction.cpp
+         moc_Map.cpp
+         moc_MouseObserver.cpp
+         moc_NetBattleUserInteraction.cpp
+         moc_UserInteraction.cpp
+         main.cpp
+         正在生成代码...
+       ResourceCompile:
+         C:\Program Files (x86)\Windows Kits\8.0\bin\x86\rc.exe /l"0x0409" /nologo /fo"Release\Connect5.res" Connect5.rc 
+       Link:
+         D:\U\drivers\vs2012\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"D:\S\playing\Connect5\Win32\Release\\Connect5.exe" /NOLOGO /LIBPATH:D:\U\drivers\Qt\5.5\msvc2012\lib qtmain.lib Qt5Core.lib Qt5Gui.lib Qt5Test.lib Qt5Widgets.lib Qt5Multimedia.lib Qt5Network.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /PDB:"D:\S\playing\Connect5\Win32\Release\Connect5.pdb" /SUBSYSTEM:WINDOWS /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"D:\S\playing\Connect5\Win32\Release\Connect5.lib" /MACHINE:X86 /SAFESEH Release\Connect5.res
+         Release\qrc_connect5.obj
+         Release\moc_Countdown.obj
+         Release\moc_game.obj
+         Release\moc_Launcher.obj
+         Release\moc_LocalMultiUserInteraction.obj
+         Release\moc_Map.obj
+         Release\moc_MouseObserver.obj
+         Release\moc_NetBattleUserInteraction.obj
+         Release\moc_UserInteraction.obj
+         Release\main.obj
+         Connect5.vcxproj -> D:\S\playing\Connect5\Win32\Release\Connect5.exe
+     1>已完成生成项目“D:\S\playing\Connect5\Connect5\Connect5.vcxproj”(Build 个目标)的操作。
+
+生成成功。
+
+已用时间 00:00:15.48

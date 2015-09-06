@@ -23,7 +23,12 @@ public:
 
         UNDO_REQUEST, 
         UNDO_PERMISSION,
-        UNDO_DECLINE
+        UNDO_DECLINE,
+
+        SL_REQUEST,
+        SL_PERMISSION,
+        SL_DECLINE,
+        SL_END
     };
     // get a MOVE msg
     NetBattleMsg(const Player& p, int x, int y, int t) {
@@ -54,7 +59,7 @@ public:
             
             pos = Pos(x, y);
         }
-        else if (str[0] == 'S') {
+        else if (str[0] == 'B') {
             type = MsgType::BEGIN_GAME;
         }
         // ugly
@@ -73,6 +78,16 @@ public:
                 type = MsgType::UNDO_PERMISSION;
             else if (str[1] == 'D')
                 type = MsgType::UNDO_DECLINE;
+        }
+        else if (str[0] == 'S') {
+            if (str[1] == 'R')
+                type = MsgType::SL_REQUEST;
+            else if (str[1] == 'P')
+                type = MsgType::SL_PERMISSION;
+            else if (str[1] == 'D')
+                type = MsgType::SL_DECLINE;
+            else if (str[1] == 'E')
+                type = MsgType::SL_END;
         }
     }
     std::string toQString() {
@@ -99,7 +114,7 @@ public:
             str += QString::number(time).toStdString();
         }
         else if (type == MsgType::BEGIN_GAME) {
-            str += 'S';
+            str += 'B';
         }
         else if (type == MsgType::LOAD_REQUEST) {
             str += "LR";
@@ -119,7 +134,20 @@ public:
         else if (type == MsgType::UNDO_DECLINE) {
             str+= "UD";
         }
+        else if (type == MsgType::SL_REQUEST) {
+            str += "SR";
+        }
+        else if (type == MsgType::SL_PERMISSION) {
+            str += "SP";
+        }
+        else if (type == MsgType::SL_DECLINE) {
+            str+= "SD";
+        }
+        else if (type == MsgType::SL_END) {
+            str += "SE";
+        }
         // qDebug() << QString(str.c_str());
+
         return str;
     }
 public:

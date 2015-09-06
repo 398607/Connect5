@@ -174,6 +174,13 @@ protected slots:
         // qDebug() << x << " " << y;
 
         if (gameMode == GameMode::NETBATTLE) {
+            if (loading) {
+                qDebug() << "loading";
+                map->move(p, Pos(x, y));
+                return;
+            }
+            if (before)
+                return;
             if (!waitForMe && p == myPlayer)
                 return;
         }
@@ -210,6 +217,7 @@ protected slots:
             arr->append(NetBattleMsg(p, x, y, myTimeCost).toQString().c_str());
 
             useSocket->write(arr->data());
+            useSocket->flush();
             delete arr;
         }
     }
@@ -278,6 +286,10 @@ protected slots:
                 pal = "Black";
             currDisplay->setText(pal + "`s turn");
         }
+        else if (gameMode == GameMode::NETBATTLE) {
+            sendMsgType(NetBattleMsg::MsgType::SL_REQUEST);
+        }
+
     }
 
     // network
@@ -331,6 +343,7 @@ protected slots:
     }
     void startConnect() {
         // qDebug() << "start connect!";
+        // listenSocket->close();
         useSocket = listenSocket->nextPendingConnection();
         connect(useSocket, &QTcpSocket::readyRead, this, &Game::getMsg);
         addDisplay->setText(add + " connected");
@@ -374,11 +387,13 @@ protected slots:
 
         if (!isHost) {
             sendBeginRequest();
+            before = false;
         }
 
         if (beginRequestNum == 2) {
             QMessageBox* box = new QMessageBox(QMessageBox::Icon::Information, "Battle Begin!", "Host uses black, and move first.");
             box->show();
+            before = false;
             beginBattle();
         }
     }
@@ -386,6 +401,7 @@ protected slots:
         // qDebug() << "begin!";
 
         // wait for both to confirm
+        before = false;
 
         if (isHost) {
             setWaitForMe(true);
@@ -402,7 +418,7 @@ protected slots:
             setWaitForMe(true);
     }
     void getMsgStr(const QString& str) {
-        // qDebug() << str;
+        qDebug() << str;
         NetBattleMsg msg(str.toStdString());
 
         if (msg.type == NetBattleMsg::MsgType::MOVE) {
@@ -410,8 +426,8 @@ protected slots:
                 return; // for safety?
             move(msg.player, msg.pos.x(), msg.pos.y());
             oppoTimeCost = msg.time;
-
-            setWaitForMe(true);
+            if (!loading)
+                setWaitForMe(true);
 
         }
         else if (msg.type == NetBattleMsg::MsgType::BEGIN_GAME && isHost == false) { // client recieved begin request
@@ -445,6 +461,7 @@ protected slots:
                 if (isHost)
                     listenSocket->close();
                 setMyTimeCost(0);
+                before = true;
             }
             else {
                 sendMsgType(NetBattleMsg::MsgType::LOAD_DECLINE);
@@ -459,6 +476,7 @@ protected slots:
             repaint();
             setWaitForMe(false);
             setMyTimeCost(0);
+            before = true;
             // quit
         }
         else if (msg.type == NetBattleMsg::MsgType::LOAD_DECLINE) {
@@ -470,7 +488,6 @@ protected slots:
                                                  QMessageBox::Yes | QMessageBox::No, 
                                                  QMessageBox::No);
             if (choose == QMessageBox::Yes) {
-                
                 sendMsgType(NetBattleMsg::MsgType::UNDO_PERMISSION);
                 map->undo();
                 repaint();
@@ -487,19 +504,99 @@ protected slots:
         else if (msg.type == NetBattleMsg::MsgType::UNDO_DECLINE) {
             // nothing
         }
+        else if (msg.type == NetBattleMsg::MsgType::SL_REQUEST) {
+            QMessageBox::StandardButton choose = QMessageBox::question(NULL, 
+                                                 "Load Request", "Opponent intends to load a map. Allow?", 
+                                                 QMessageBox::Yes | QMessageBox::No, 
+                                                 QMessageBox::No);
+            if (choose == QMessageBox::Yes) {
+                sendMsgType(NetBattleMsg::MsgType::SL_PERMISSION);
+                map->clear();
+                loading = true;
+            }
+            else {
+                sendMsgType(NetBattleMsg::MsgType::SL_DECLINE);
+            }
+        }
+        else if (msg.type == NetBattleMsg::MsgType::SL_PERMISSION) {
+            // load
+
+            map->load();
+            repaint();
+            setWaitForMe(false);
+            // send the map
+
+            for (int i = 0; i < map->len(); i++)
+                for (int j = 0; j < map->len(); j++)
+                    if (map->cellAt(Pos(i, j)) != Cell::Empty && !(Pos(i, j) == map->last())) {
+                        QByteArray* arr = new QByteArray();
+                        arr->clear();
+                        arr->append(NetBattleMsg(Player(map->cellAt(Pos(i, j))), i, j, myTimeCost).toQString().c_str());
+
+                        useSocket->write(arr->data());
+                        useSocket->flush();
+                        delete arr;
+                    }
+
+            QByteArray* arr = new QByteArray();
+            arr->clear();
+            arr->append(NetBattleMsg(Player(map->cellAt(map->last())), map->last().x(), map->last().y(), myTimeCost).toQString().c_str());
+
+            useSocket->write(arr->data());
+            useSocket->flush();
+            delete arr;
+
+            // set color
+            myPlayer = CellMatrix::nextPlayer(Player(map->cellAt(map->last())));
+            userInteraction->setPlayer(myPlayer);
+
+            setWaitForMe(true);
+            sendMsgType(NetBattleMsg::MsgType::SL_END);
+        }
+        else if (msg.type == NetBattleMsg::MsgType::SL_DECLINE) {
+        }
+        else if (msg.type == NetBattleMsg::MsgType::SL_END) {
+
+            loading = false;
+            myPlayer = Player(map->cellAt(map->last()));
+            userInteraction->setPlayer(myPlayer);
+            setWaitForMe(false);
+            repaint();
+            loading = false;
+        }
     }
     void getMsg() {
         
         QString str;
         str = useSocket->readAll();
-        getMsgStr(str);
+
+        std::string s = str.toStdString();
+        // getMsgStr(str);
+
+        while (s.length() > 0) {
+            unsigned p = s.substr(1, 1000).find_first_of("MS");
+            if (p != std::string::npos) {
+                std::string cur = s.substr(0, p + 1);
+                // qDebug() << cur.c_str();
+                getMsgStr(QString(cur.c_str()));
+                s = s.substr(p + 1, 10000);
+            }
+            else {
+                // qDebug() << s.c_str();
+                getMsgStr(QString(s.c_str()));
+                s = "";
+            }
+        }
 
     }
     void sendMsgType(const NetBattleMsg::MsgType& y) {
+        if (useSocket == nullptr || !(useSocket->state() == QAbstractSocket::ConnectedState))
+            return;
         QByteArray* arr = new QByteArray();
         arr->clear();
         arr->append(NetBattleMsg(y).toQString().c_str());
         useSocket->write(arr->data());
+        useSocket->flush();
         delete arr;
     }
     void sendBeginRequest() {
@@ -512,6 +609,8 @@ protected slots:
     }
     void sendUndoRequest() {
         if (useSocket == nullptr || !(useSocket->state() == QAbstractSocket::ConnectedState))
+            return;
+        if (!waitForMe)
             return;
         sendMsgType(NetBattleMsg::MsgType::UNDO_REQUEST);
     }
@@ -540,10 +639,7 @@ protected:
 
         currDisplay->setText("Black`s turn");
 
-        QPushButton* load = new QPushButton(this);
-        load->setGeometry(1300, 260, 200, 50);
-        load->setText("Load game");
-        connect(load, &QPushButton::clicked, this, &Game::loadMap);
+       
     }
     void initNB() {
         userInteraction = new NetBattleUserInteraction(this, 1000 / map->len(), mapRect);
@@ -595,7 +691,11 @@ protected:
 
         useSocket = nullptr;
 
+        loading = false;
+
         setWaitForMe(false);
+        waitForMe = false;
+        before = true;
 
         setMyTimeCost(0);
 
@@ -615,6 +715,11 @@ protected:
         save->setGeometry(1080, 260, 200, 50);
         save->setText("Save game");
         connect(save, &QPushButton::clicked, this, &Game::saveMap);
+
+        QPushButton* load = new QPushButton(this);
+        load->setGeometry(1300, 260, 200, 50);
+        load->setText("Load game");
+        connect(load, &QPushButton::clicked, this, &Game::loadMap);
 
         QPushButton* undo = new QPushButton(this);
         undo->setGeometry(1080, 370, 200, 50);
@@ -654,7 +759,10 @@ private:
     int oppoTimeCost;
 
     bool waitForMe;
+    bool loading;
     int beginRequestNum;
+
+    bool before;
 };
 
 #endif // GAME_H

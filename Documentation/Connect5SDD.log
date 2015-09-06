@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.1415926-2.3-1.40.12 (MiKTeX 2.9) (preloaded format=pdflatex 2015.4.29)  5 SEP 2015 18:54
+This is pdfTeX, Version 3.1415926-2.3-1.40.12 (MiKTeX 2.9) (preloaded format=pdflatex 2015.4.29)  6 SEP 2015 15:40
 entering extended mode
 **D:/S/playing/Connect5/Documentation/Connect5SDD.tex
 (D:/S/playing/Connect5/Documentation/Connect5SDD.tex
@@ -578,7 +578,7 @@ File: omscmr.fd 1999/05/25 v2.5h Standard LaTeX font definitions
 LaTeX Font Info:    Font shape `OMS/cmr/m/n' in size <12.05> not available
 (Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 37.
  [3] [4]
-Overfull \hbox (63.6167pt too wide) in paragraph at lines 105--106
+Overfull \hbox (63.6167pt too wide) in paragraph at lines 114--115
 []\C19/rm/m/n/12.05/39 d \C19/rm/m/n/12.05/58 	|\C19/rm/m/n/12.05/26 §| \OT1/cm
 r/m/n/12.05 Game\C19/rm/m/n/12.05/48 a \C19/rm/m/n/12.05/37  \C19/rm/m/n/12.05
 /55  \C19/rm/m/n/12.05/61  \C19/rm/m/n/12.05/42 K \C19/rm/m/n/12.05/63 I \C19
@@ -590,7 +590,7 @@ n/12.05/36  \C19/rm/m/n/12.05/48 )\OT1/cmr/m/n/12.05 QTcpServer\C19/rm/m/n/12.
  []
 
 [5]
-Overfull \hbox (18.44029pt too wide) in paragraph at lines 129--130
+Overfull \hbox (18.44029pt too wide) in paragraph at lines 138--139
 []\C19/rm/m/n/12.05/61 Ï \C19/rm/m/n/12.05/58  \C19/rm/m/n/12.05/37  \C19/rm/
 m/n/12.05/38 § \C19/rm/m/n/12.05/60 S \C19/rm/m/n/12.05/64 ¥ \C19/rm/m/n/12.05/
 56 ¤ \C19/rm/m/n/12.05/62 k \C19/rm/m/n/12.05/40  \C19/rm/m/n/12.05/62 ^ \C19/
@@ -603,7 +603,7 @@ rm/m/n/12.05/44 r \C19/rm/m/n/12.05/46  \C19/rm/m/n/12.05/44 p \C19/rm/m/n/12.
  []
 
 
-Overfull \hbox (12.63937pt too wide) in paragraph at lines 129--130
+Overfull \hbox (12.63937pt too wide) in paragraph at lines 138--139
 \C19/rm/m/n/12.05/62 ^ \C19/rm/m/n/12.05/61 ± \C19/rm/m/n/12.05/45 i \C19/rm/m/
 n/12.05/57 f \C19/rm/m/n/12.05/51 , \C19/rm/m/n/12.05/42 ‡ \C19/rm/m/n/12.05/53
  « \C19/rm/m/n/12.05/62  \C19/rm/m/n/12.05/40  \C19/rm/m/n/12.05/55 à \C19/rm
@@ -616,19 +616,19 @@ on\C19/rm/m/n/12.05/48 a
  []
 
 [6] [7] [8]
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 205.
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 205.
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 214.
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 214.
  (D:\S\playing\Connect5\Documentation\Connect5SDD.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 205.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 205.
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 214.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 214.
 Package rerunfilecheck Info: File `Connect5SDD.out' has not changed.
-(rerunfilecheck)             Checksum: B07FCF3DEE06DA29F4B660475916D740;644.
+(rerunfilecheck)             Checksum: DEAC16922FBD28624474450B9FDEC8A1;724.
  ) 
 Here is how much of TeX's memory you used:
- 12437 strings out of 495354
- 201811 string characters out of 3183299
- 269905 words of memory out of 3000000
- 15351 multiletter control sequences out of 15000+200000
+ 12449 strings out of 495354
+ 202028 string characters out of 3183299
+ 269908 words of memory out of 3000000
+ 15362 multiletter control sequences out of 15000+200000
  23177 words of font info for 79 fonts, out of 3000000 for 9000
  14 hyphenation exceptions out of 8191
  36i,6n,33p,859b,945s stack positions out of 5000i,500n,10000p,200000b,50000s
@@ -650,9 +650,9 @@ S/Fonts/simsun.ttc><C:/WINDOWS/Fonts/simsun.ttc><D:/U/drivers/CTex/MiKTeX/fonts
 ic/amsfonts/cm/cmr12.pfb><D:/U/drivers/CTex/MiKTeX/fonts/type1/public/amsfonts/
 cm/cmr17.pfb><D:/U/drivers/CTex/MiKTeX/fonts/type1/public/amsfonts/cm/cmsl12.pf
 b><D:/U/drivers/CTex/MiKTeX/fonts/type1/public/amsfonts/cm/cmsy10.pfb>
-Output written on Connect5SDD.pdf (8 pages, 350783 bytes).
+Output written on Connect5SDD.pdf (8 pages, 355822 bytes).
 PDF statistics:
- 265 PDF objects out of 1000 (max. 8388607)
- 20 named destinations out of 1000 (max. 500000)
- 81 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 270 PDF objects out of 1000 (max. 8388607)
+ 21 named destinations out of 1000 (max. 500000)
+ 89 words of extra memory for PDF output out of 10000 (max. 10000000)
 

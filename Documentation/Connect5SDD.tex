@@ -81,6 +81,15 @@
 			Game类会监听这个信号，并作出正确的反应。
 			
 			\end{itemize}
+		\subsubsection{NetBattleMsg.h}
+		
+			NetBattleMsg类是所有网络互传信息的封装类。简单地说，所有的信息都会被封装成一个该类的实例，并藉由该类提供的接口转为对应的Qstring类实例后，通过TCP协议发送。
+			
+			同样地，该类也提供了将收到的QString实例解码为NetBattleMsg类实例的接口，以读取并处理信息。
+			
+			Game类中，将接收信号与getMsg相连接。在其中，会对可能发生的粘包现象进行自拆包处理，之后再处理分解开来的一条条信息。
+			
+			因为上述接口用法比较简单，这里只介绍此类的功能，不具体说明接口。
 			
 	\subsection{Game Logic \& User Interface}
 	
